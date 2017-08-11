@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:interface xsi:type="con:RestService" id="5784501f-aa78-4ec6-85ad-6d99c7fb2ece" wadlVersion="http://wadl.dev.java.net/2009/02" name="APIURL" type="rest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="5784501f-aa78-4ec6-85ad-6d99c7fb2ecefileName">APIURL</con:setting></con:settings><con:definitionCache type="TEXT" rootPart=""/><con:endpoints><con:endpoint>${#Project#URI}</con:endpoint></con:endpoints></con:interface>

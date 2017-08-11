@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:testSuite id="f8b41bc1-79df-4b23-99ef-8a920e8e1774" name="Accounts-Controller" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="f8b41bc1-79df-4b23-99ef-8a920e8e1774fileName">Account-Controller</con:setting></con:settings><con:runType>SEQUENTIAL</con:runType><con:properties/><con:reportParameters/></con:testSuite>
