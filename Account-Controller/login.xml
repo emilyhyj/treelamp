@@ -12,27 +12,27 @@ db= Sql.newInstance(
 def account = context.expand( '${DataSource#account}' )
 def role = context.expand( '${DataSource#role}' )
 def user = db.firstRow("select * from sys_account where account = '$account'")
-def userid = user["id"] as int
-def roleid =db.firstRow("select role_id  from sys_account_role where account_id= '$userid'")
-log.info roleid
+
 def json = new JsonBuilder()
 if (user == null  ) {
 	log.info "用户名或密码错误！"
-	json('userid':null,'roleid':null)
+	json('user':null,'roleid':null)
 	return json
 }else if(role == "wrong pwd")
 {
-	json('userid':userid,'roleid':null)
+	json('user':user,'roleid':null)
 	return json
 	}
 //def userId =  user["id"] as int
 //def companyId = user["company_id"]
-
+def userid = user["id"] as int
+def roleid =db.firstRow("select role_id  from sys_account_role where account_id= '$userid'")
+log.info roleid
 // def userRoleId = db.firstRow("select role_id from sys_user_role where user_id = '$userId'")[0] as int
 //def companyName = db.firstRow("select company_name from sys_company where id = '$companyId'")[0]
-json('userid':userid,'roleid':roleid)
-
-
+json('user':userid,'roleid':roleid)
+log.info userid
+log.info roleid
 return json</script></con:config></con:testStep><con:testStep type="restrequest" name="login" id="8df2b9de-4322-44b1-9292-3ac0c9bef096"><con:settings/><con:config service="APIURL" resourcePath="/accounts/login" methodName="Method 1" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="login" id="893d8684-0f56-4898-b97b-4a1d50a1cdbd" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#URI}</con:endpoint><con:request>{
    "accountName": "${DataSource#account}",
    "password": "${DataSource#pwd}"
