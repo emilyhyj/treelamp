@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:testCase id="089ca4d8-6a93-46d4-90d2-07f8a253b971" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="login" searchProperties="true" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="089ca4d8-6a93-46d4-90d2-07f8a253b971fileName">login</con:setting></con:settings><con:testStep type="datasource" name="DataSource" id="73115db7-835b-496c-ac67-353d87cfb6f7"><con:settings/><con:config xsi:type="con:DataSourceStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:dataSource type="Grid"><con:configuration><row><![CDATA[<xml-fragment><con:entry xmlns:con="http://eviware.com/soapui/config">sys admin</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">test007</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">111111</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">200</con:entry></xml-fragment>]]></row><row><![CDATA[<xml-fragment><con:entry xmlns:con="http://eviware.com/soapui/config">unreal user</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">helloworld121</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">111111</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">410</con:entry></xml-fragment>]]></row><row><![CDATA[<xml-fragment><con:entry xmlns:con="http://eviware.com/soapui/config">wrong pwd</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">test007</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">222111wrong</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">410</con:entry></xml-fragment>]]></row></con:configuration></con:dataSource><con:property>role</con:property><con:property>account</con:property><con:property>pwd</con:property><con:property>code</con:property><con:restartOnRun>true</con:restartOnRun></con:config></con:testStep><con:testStep type="groovy" name="ExpectData" id="e19b1f9f-b408-4f4d-b0b1-620c62037279"><con:settings/><con:config><script>import groovy.sql.Sql
+<con:testCase id="089ca4d8-6a93-46d4-90d2-07f8a253b971" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="login" searchProperties="true" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="089ca4d8-6a93-46d4-90d2-07f8a253b971fileName">login</con:setting></con:settings><con:testStep type="datasource" name="DataSource" id="73115db7-835b-496c-ac67-353d87cfb6f7"><con:settings/><con:config xsi:type="con:DataSourceStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:dataSource type="Grid"><con:configuration><row><![CDATA[<xml-fragment><con:entry xmlns:con="http://eviware.com/soapui/config">sys admin</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">admin</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">111111</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">200</con:entry></xml-fragment>]]></row><row><![CDATA[<xml-fragment><con:entry xmlns:con="http://eviware.com/soapui/config">unreal user</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">helloworld121</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">111111</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">410</con:entry></xml-fragment>]]></row><row><![CDATA[<xml-fragment><con:entry xmlns:con="http://eviware.com/soapui/config">wrong pwd</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">test007</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">222111wrong</con:entry><con:entry xmlns:con="http://eviware.com/soapui/config">410</con:entry></xml-fragment>]]></row></con:configuration></con:dataSource><con:property>role</con:property><con:property>account</con:property><con:property>pwd</con:property><con:property>code</con:property><con:restartOnRun>true</con:restartOnRun></con:config></con:testStep><con:testStep type="groovy" name="ExpectData" id="e19b1f9f-b408-4f4d-b0b1-620c62037279"><con:settings/><con:config><script>import groovy.sql.Sql
 import groovy.json.JsonBuilder
 //****************定义数据库链接****************//
 db= Sql.newInstance(
@@ -8,43 +8,69 @@ db= Sql.newInstance(
 	password:context.expand( '${#Project#DBPwd}' ),
 	driverClassName:"com.mysql.jdbc.Driver"
 )
-
 def account = context.expand( '${DataSource#account}' )
 def role = context.expand( '${DataSource#role}' )
+def code = context.expand( '${DataSource#code}' )
+log.info"role":role
+//account = "test007"
+//role ="sys admin"
 def user = db.firstRow("select * from sys_account where account = '$account'")
 
 def json = new JsonBuilder()
-if (user == null  ) {
-	log.info "用户名或密码错误！"
-	json('user':null,'roleid':null)
-	return json
-}else if(role == "wrong pwd")
+	
+if(user ==null || role =="wrong pwd")
 {
-	json('user':user,'roleid':null)
-	return json
-	}
-//def userId =  user["id"] as int
-//def companyId = user["company_id"]
+	log.info "用户名或密码错误！"
+	json('userid':null,'roleid':null)
+	return json		
+}
 def userid = user["id"] as int
-def roleid =db.firstRow("select role_id  from sys_account_role where account_id= '$userid'")
-log.info roleid
+def roleid =db.firstRow("select role_id  from sys_account_role where account_id= '$userid'")[0]
 // def userRoleId = db.firstRow("select role_id from sys_user_role where user_id = '$userId'")[0] as int
 //def companyName = db.firstRow("select company_name from sys_company where id = '$companyId'")[0]
-json('user':userid,'roleid':roleid)
+json('userid':userid,'roleid':roleid)
 log.info userid
 log.info roleid
 return json</script></con:config></con:testStep><con:testStep type="restrequest" name="login" id="8df2b9de-4322-44b1-9292-3ac0c9bef096"><con:settings/><con:config service="APIURL" resourcePath="/accounts/login" methodName="Method 1" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="login" id="893d8684-0f56-4898-b97b-4a1d50a1cdbd" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#URI}</con:endpoint><con:request>{
-   "accountName": "${DataSource#account}",
-   "password": "${DataSource#pwd}"
-}</con:request><con:originalUri>http://192.168.201.190/account/login</con:originalUri><con:assertion type="JsonPath Match" id="be629679-4aa4-4749-8ced-7bfa8b377d0e" name="JsonPath Match" disabled="true"><con:configuration><path>$data.id</path><content>${ExpectData#result#$.user.id}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:assertion type="GroovyScriptAssertion" id="40976a6a-f9e6-49fa-8ae0-58a158551aea" name="Script Assertion 1"><con:configuration><scriptText>import groovy.json.JsonSlurper
+   "password": "${DataSource#pwd}",
+   "account": "${DataSource#account}"
+}</con:request><con:originalUri>http://192.168.201.190/account/login</con:originalUri><con:assertion type="GroovyScriptAssertion" id="40976a6a-f9e6-49fa-8ae0-58a158551aea" name="Script Assertion 1"><con:configuration><scriptText>import groovy.json.JsonSlurper
 //http://blog.csdn.net/zouxiongqqq/article/details/50883497  参考文章
-//http://www.cnblogs.com/MasterMonkInTemple/p/4655197.html 参考文章
-def response = messageExchange.getResponseContent() ////Get response content of the current request
+//www.cnblogs.com/MasterMonkInTemple/p/4655197.html 参考文章
+//http://berdy.iteye.com/blog/1182590 参考文章
+def response = messageExchange.getResponseContent() ////Get response content of the current request(获取想要的数据)
+def root = new JsonSlurper().parseText(response)
+def coderes =root.code
+
+//def s1 =response.code
+/*调试成功
+log.info "response": response
+log.info "root":root
+log.info "coderes":coderes
+*/
+
+/*
 def slurper = new JsonSlurper()
 def result = slurper.parseText(response)
 def a = result.code  
+*/
 
-def s = context.expand( '${ExpectData#result#$[0]}' )
-log.info s
-//def s=' ${ExpectData#result#$.user.id}'
-//def expdata=messageExchange.modelItem.testCase.testSteps["ExpectData"].testRequest.response.contentAsString</scriptText></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:restRequest></con:config></con:testStep><con:testStep type="datasourceloop" name="DataSource Loop" id="993749b2-a452-44f8-9230-3f36c9356e57"><con:settings/><con:config><dataSourceStep>DataSource</dataSourceStep><targetStep>ExpectData</targetStep></con:config></con:testStep><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>8df2b9de-4322-44b1-9292-3ac0c9bef096</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>73115db7-835b-496c-ac67-353d87cfb6f7</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e19b1f9f-b408-4f4d-b0b1-620c62037279</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>993749b2-a452-44f8-9230-3f36c9356e57</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase>
+//def s = context.expand( '${ExpectData#result#$[0]}' ) 这个方式不知道为什么没有生效，以前用过这个方法的
+
+def useridexp = context.expand( '${ExpectData#result#$.userid}' )
+def codeexp = context.expand( '${DataSource#code}' )
+def roleidexp = context.expand( '${ExpectData#result#$.roleid}' ) 
+//log.info s
+if(coderes==200)
+{
+def useridrsp=root.data.id
+def roleidrsp=root.data.roleDTO.id
+assert useridrsp==useridexp
+assert roleidexp==roleidexp
+}
+	else
+{
+	assert coderes ==codeexp
+}
+
+//def expdata=messageExchange.modelItem.testCase.testSteps["ExpectData"].testRequest.response.contentAsString</scriptText></con:configuration></con:assertion><con:assertion type="JsonPath Match" id="be629679-4aa4-4749-8ced-7bfa8b377d0e" name="JsonPath Match" disabled="true"><con:configuration><path>$data.id</path><content>${ExpectData#result#$.user.id}</content><allowWildcards>false</allowWildcards><ignoreNamspaceDifferences>false</ignoreNamspaceDifferences><ignoreComments>false</ignoreComments></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:restRequest></con:config></con:testStep><con:testStep type="datasourceloop" name="DataSource Loop" id="993749b2-a452-44f8-9230-3f36c9356e57"><con:settings/><con:config><dataSourceStep>DataSource</dataSourceStep><targetStep>ExpectData</targetStep></con:config></con:testStep><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>8df2b9de-4322-44b1-9292-3ac0c9bef096</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>73115db7-835b-496c-ac67-353d87cfb6f7</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e19b1f9f-b408-4f4d-b0b1-620c62037279</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>993749b2-a452-44f8-9230-3f36c9356e57</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase>
