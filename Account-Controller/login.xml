@@ -57,12 +57,12 @@ def a = result.code
 
 //def s = context.expand( '${ExpectData#result#$[0]}' ) 这个方式不知道为什么没有生效，以前用过这个方法的
 
-def useridexp = context.expand( '${ExpectData#result#$.userid}' )
-def codeexp = context.expand( '${DataSource#code}' )
-def roleidexp = context.expand( '${ExpectData#result#$.roleid}' ) 
+def codeexp = context.expand( '${DataSource#code}' ).toInteger()
 //log.info s
 if(coderes==200)
 {
+def useridexp = context.expand( '${ExpectData#result#$.userid}' ).toInteger()
+def roleidexp = context.expand( '${ExpectData#result#$.roleid}' ) .toInteger()
 def useridrsp=root.data.id
 def roleidrsp=root.data.roleDTO.id
 assert useridrsp==useridexp
